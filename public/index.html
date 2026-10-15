@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Space</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-stage="intro" data-view="map" data-loading>
+    <!-- ローディング：logo.svg の 3×3 部分だけを切り出している（背景の黒はページに任せる） -->
+    <div class="loader" id="loader" aria-hidden="true">
+        <svg class="logo" viewBox="212.8 202.05 151 151" width="151" height="151"
+             xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="#fff" stroke-width="1" stroke-miterlimit="10">
+                <rect x="263.3" y="252.55" width="50" height="50"/>
+                <rect class="piece piece-a" x="213.3" y="202.55" width="50" height="50"/>
+                <rect class="piece piece-b" x="313.3" y="202.55" width="50" height="50"/>
+                <rect class="piece piece-c" x="313.3" y="302.55" width="50" height="50"/>
+                <rect class="piece piece-d" x="213.3" y="302.55" width="50" height="50"/>
+            </g>
+        </svg>
+    </div>
+    <canvas id="view"></canvas>
+
+    <h1 class="title">Number Space</h1>
+
+    <p class="intro">This is our <em>quantitatively</em> world.</p>
+
+    <p class="ask" data-stage-of="name">Your name is <input id="name" type="text"
+        autocomplete="off" spellcheck="false" maxlength="24" placeholder="____" aria-label="name">.</p>
+    <p class="ask" data-stage-of="speed">Your speed is <input id="speed" type="text"
+        inputmode="numeric" autocomplete="off" maxlength="3" placeholder="___" aria-label="speed"> km/s.</p>
+    <p class="ask" data-stage-of="connections">Number of your connections is <input id="connections"
+        type="text" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="___"
+        aria-label="connections">.</p>
+
+    <p class="hint">Press <em>SPACE</em> key.</p>
+
+    <aside class="links" id="links" hidden>
+        <p class="links-head" id="links-head"></p>
+        <ul class="links-list" id="links-list"></ul>
+    </aside>
+
+    <script src="loader.js"></script>
+    <script src="sketch.js"></script>
+</body>
+</html>

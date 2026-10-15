@@ -1,0 +1,8 @@
+# Number Space — Netlify の設定
+# ビルドはしない。public/ をそのまま配信し、netlify/functions/ を API として動かす
+
+[build]
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"

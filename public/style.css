@@ -1,0 +1,284 @@
+/*
+  書体は Commercial Type の Trial 版で、規約上 Web に置けない。
+  手元にインストールされていればそれを使い（local）、なければ Helvetica 系で表示される。
+  fonts/ はリポジトリに入れていない（.gitignore）。製品版の Web ライセンスを買ったら差し替える。
+*/
+@font-face {
+  font-family: "Haas Grot Disp Trial";
+  src: local("HaasGrotDispTrial-55Roman"),
+       url("fonts/NeueHaasGrotDisp-55Roman-Trial.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Haas Grot Disp Trial";
+  src: local("HaasGrotDispTrial-26XThinItalic"),
+       url("fonts/NeueHaasGrotDisp-26XThinItalic-Trial.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Haas Grot Disp Trial";
+  src: local("HaasGrotDispTrial-36ThinItalic"),
+       url("fonts/NeueHaasGrotDisp-36ThinItalic-Trial.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+:root {
+  /* Trial 版は ( ) * などを持たないので、原型にあたる Helvetica で補う */
+  --font: "Haas Grot Disp Trial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --size: 24px;   /* 文字サイズはすべてこれに統一 */
+
+  /* Figma は 1920×1080。横位置は vw、縦位置は vh に換算している */
+  --left: 4.69vw;   /* 90px  */
+  --ask: 45.36vw;   /* 871px */
+  --middle: 46vh;   /* 497px */
+
+  /*
+    画面1の右の文。1920px なら Figma 通り 1325px（69vw）。
+    文字は縮まないので、狭い画面では右端（1614px = 84.1vw）を越えない位置まで左へ寄せる。
+    文の幅は 289px = 12.05 字幅。
+  */
+  --right: max(var(--left), min(69vw, calc(84.1vw - var(--size) * 12.05)));
+
+  --move: 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: var(--size);
+  line-height: normal;
+}
+
+/* --- 世界（ホーム画面でだけ見せる） --- */
+#view {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+
+[data-stage="home"] #view {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+[data-stage="home"][data-view="globe"] #view {
+  cursor: grab;
+}
+
+[data-stage="home"][data-view="globe"] #view.over-name {
+  cursor: pointer;
+}
+
+[data-stage="home"][data-view="globe"] #view.dragging {
+  cursor: grabbing;
+}
+
+/* --- 球体で名前を押したとき、右につながっている人を出す --- */
+.links {
+  position: fixed;
+  /*
+    球（中心が画面中央、半径 = 短辺 × 0.4。sketch.js の GLOBE_RATIO）の右端より外に置く。
+    Figma の右列（69vw）より左には来ない。
+  */
+  left: max(69vw, calc(50vw + 40vmin + var(--size)));
+  right: 4.69vw;
+  top: 6.3vh;      /* ホームの Number Space と同じ高さ */
+  bottom: 6.3vh;
+  margin: 0;
+  overflow-y: auto; /* 人数が多いときはスクロール */
+  display: none;
+}
+
+[data-stage="home"][data-view="globe"] .links:not([hidden]) {
+  display: block;
+}
+
+.links-head {
+  margin: 0 0 1em;
+}
+
+.links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.title,
+.intro,
+.ask,
+.hint {
+  position: fixed;
+  margin: 0;
+  font-size: var(--size);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/*
+  data-stage で画面を切り替える
+  intro = Figma「1」 / name = 「2」 / speed = 「3」 / connections = 「4」 / home = 「ホーム画面」
+*/
+
+/* --- Number Space：1〜4 は中段、ホームで左上へ --- */
+.title {
+  left: var(--left);
+  top: var(--middle);
+  pointer-events: none;
+  transition: left var(--move), top var(--move);
+}
+
+[data-stage="home"] .title {
+  left: 4.58vw;  /* 88px */
+  top: 6.3vh;    /* 68px */
+}
+
+/* --- 画面1の文 --- */
+.intro {
+  left: var(--right);
+  top: var(--middle);
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+.intro em {
+  font-style: italic;
+  font-weight: 100;   /* 26 XThin Italic */
+}
+
+body:not([data-stage="intro"]) .intro {
+  opacity: 0;
+}
+
+/* --- ホーム：Space の案内。地図・球体どちらでも出しておく --- */
+.hint {
+  left: var(--left);
+  top: var(--middle);
+  opacity: 0;
+  pointer-events: none;   /* 下の世界の操作を邪魔しない */
+  transition: opacity 0.6s;
+}
+
+[data-stage="home"] .hint {
+  opacity: 1;
+}
+
+.hint em {
+  font-style: italic;
+  font-weight: 200;   /* 36 Thin Italic */
+}
+
+/* --- 画面2〜4の問い：自分の段階のときだけ見せる --- */
+.ask {
+  left: var(--ask);
+  top: var(--middle);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+[data-stage="name"] .ask[data-stage-of="name"],
+[data-stage="speed"] .ask[data-stage-of="speed"],
+[data-stage="connections"] .ask[data-stage-of="connections"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ask input {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  caret-color: #fff;
+  width: 1em;   /* 実際の幅は sketch.js が文字幅から決める */
+}
+
+/* Figma の ____ は白。未入力でも同じ色で見せる */
+.ask input::placeholder {
+  color: #fff;
+  opacity: 1;
+}
+
+/* =========================================================
+   ローディング（logoMotion_HTML仕様.md）
+   ========================================================= */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s;   /* loader.js の FADE_MS と揃える */
+}
+
+.loader.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo {
+  display: block;
+  overflow: visible;
+}
+
+/* 1 ループ 5760ms = 移動 480ms + 静止 240ms を 8 回 */
+.piece {
+  animation: 5760ms infinite;
+}
+
+.piece-a { animation-name: piece-a; }
+.piece-b { animation-name: piece-b; }
+.piece-c { animation-name: piece-c; }
+.piece-d { animation-name: piece-d; }
+
+/* 移動が始まるキーフレームにイージングを付ける。静止区間は値が同じなので影響しない */
+@keyframes piece-a {
+  0%             { transform: translate(0, 0);      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  8.333%, 50%    { transform: translate(50px, 0);   animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  58.333%, 100%  { transform: translate(100px, 0); }
+}
+
+@keyframes piece-b {
+  0%, 12.5%      { transform: translate(0, 0);      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  20.833%, 62.5% { transform: translate(0, 50px);   animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  70.833%, 100%  { transform: translate(0, 100px); }
+}
+
+@keyframes piece-c {
+  0%, 25%        { transform: translate(0, 0);      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  33.333%, 75%   { transform: translate(-50px, 0);  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  83.333%, 100%  { transform: translate(-100px, 0); }
+}
+
+@keyframes piece-d {
+  0%, 37.5%      { transform: translate(0, 0);      animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  45.833%, 87.5% { transform: translate(0, -50px);  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  95.833%, 100%  { transform: translate(0, -100px); }
+}
+
+/* 動きを減らす設定の人には、動かさずロゴの形のまま見せる */
+@media (prefers-reduced-motion: reduce) {
+  .piece {
+    animation: none;
+  }
+}

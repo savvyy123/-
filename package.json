@@ -1,0 +1,10 @@
+{
+  "name": "numberspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Number Space — 速さとつながりの数で動く、球体の世界",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.4"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+.netlify/
+.DS_Store
+
+# 書体は Commercial Type の Trial 版。
+# 規約で再配布と Web 埋め込み（@font-face）が禁止されているので、リポジトリには入れない。
+public/fonts/
